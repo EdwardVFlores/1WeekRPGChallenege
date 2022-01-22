@@ -2,24 +2,21 @@ local CollectionService = game:GetService("CollectionService")
 local swordRE = game.ReplicatedStorage.Remotes.Swords.RE.DoDamage
 local player = game.Players.LocalPlayer
 
-local connection
+local activatedCooldown = false
 function activated(sword)
-    print(sword)
-    if(CollectionService:HasTag(sword, "sword")) then
-        print("added equipped connection")
-        connection = sword.Equipped:Connect(function() 
-            print("added unequipped connection")
-            sword.Unequipped:Connect(function()
-                print("disconnected")
-                connection:Disconnect()
-            end)
-            swordRE:FireServer(sword)
-        end)
-
-        
-    end
+	if(CollectionService:HasTag(sword, "Sword")) and not sword:GetAttribute("Connected") then
+		sword:SetAttribute("Connected", true)
+		sword.Activated:Connect(function()
+			if activatedCooldown then return end
+			activatedCooldown = true
+			swordRE:FireServer(sword)
+			task.wait(1)
+			activatedCooldown = false
+		end)
+	end
 end
+
 local backPack = player.Backpack
 if backPack then 
-    backPack.ChildAdded:Connect(activated)
+	backPack.ChildAdded:Connect(activated)
 end
