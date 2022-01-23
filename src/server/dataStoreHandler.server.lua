@@ -11,7 +11,7 @@ ds2.Combine("DATA", "playerData")
 local databaseTable = {
     Smorgs = 0,
     Exp = 0,
-    Swords = {"Noob sword"},
+    Swords = {"Noob Sword"},
 }
 
 function initDatabase(player)
