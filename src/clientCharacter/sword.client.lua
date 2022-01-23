@@ -9,6 +9,7 @@ function activated(sword)
 		sword.Activated:Connect(function()
 			if activatedCooldown then return end
 			activatedCooldown = true
+            print("backpack connection")
 			swordRE:FireServer(sword)
 			task.wait(1)
 			activatedCooldown = false

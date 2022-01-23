@@ -1,29 +1,34 @@
-local DEBUG = false
+local DEBUG = true
 
 local ServerStorage = game:GetService("ServerStorage")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService = game:GetService("CollectionService")
+local events = ServerStorage:WaitForChild("events")
 local swordAttack = require(game.ReplicatedStorage.Shared.swordAttack)
 local swordRE = game.ReplicatedStorage.Remotes.Swords.RE.DoDamage
 local swordsFolder = ReplicatedStorage:FindFirstChild("Swords"):GetChildren()
 local Players = game:GetService("Players")
-local sendMoneyE = ServerStorage:WaitForChild("events"):WaitForChild("sendMoneyE")
-local sendExpE = ServerStorage:WaitForChild("events"):WaitForChild("sendExpE")
+local sendMoneyE = events:WaitForChild("sendMoneyE")
+local sendExpE = events:WaitForChild("sendExpE")
+local connectSwordDamageE = events:WaitForChild("connectSwordDamage")
 
 
 function playAttack(player, sword)
     swordAttack.attack(player, sword)
 end
 
-function damageOnSwords(sword, parent)
-    if sword == nil or parent == nil then return end
+function damageOnSwords(sword)
+    print("actually put damage 1")
+    if sword == nil then return end
     local hitbox = sword:FindFirstChild("HitBox")
     if not hitbox then 
         warn("No hitbox for some goddamn reason :[")
         return
 	end
+    print("actually put damage 2")
     local cooldown = false
     hitbox.Touched:Connect(function(part)
+        print("actually put damage 3")
         if cooldown then return end
         cooldown = true
         
@@ -31,6 +36,7 @@ function damageOnSwords(sword, parent)
             return
 		end
 		if CollectionService:HasTag(part.Parent, "Mob") then
+            print("actually put damage 4")
             local mob = part.Parent
             if not mob then return end
             local humanoid = mob:FindFirstChildWhichIsA("Humanoid")
@@ -59,12 +65,6 @@ function main()
 end
 
 swordRE.OnServerEvent:Connect(playAttack)
-while true do
-    for _, sword in pairs(CollectionService:GetTagged("Sword")) do
-        if debug then warn("Ayo wasup we working in swordcoll") end
-        sword.AncestryChanged:Connect(damageOnSwords)
-    end
-    task.wait(1)
-end
+connectSwordDamageE.Event:Connect(damageOnSwords)
 
 main() 

@@ -1,9 +1,13 @@
+local DEBUG = false
 local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
 local ServerStorage = game:GetService("ServerStorage")
-local sendMoneyE = ServerStorage:WaitForChild("events"):WaitForChild("sendMoneyE")
-local sendExpE = ServerStorage:WaitForChild("events"):WaitForChild("sendExpE")
+local Events = ServerStorage:WaitForChild("events")
+local Functions = ServerStorage:WaitForChild("functions")
+local sendMoneyE = Events:WaitForChild("sendMoneyE")
+local sendExpE = Events:WaitForChild("sendExpE")
 local Services = ServerScriptService:WaitForChild("Server"):WaitForChild("services")
+local canBuyF = Functions:WaitForChild("canBuyF")
 local ds2 = require(Services:WaitForChild("DataStore2"))
 
 ds2.Combine("DATA", "playerData")
@@ -31,6 +35,13 @@ function initDatabase(player)
     leaderstats.Parent = player
 end
 
+function getMoney(player)
+    local playerData = ds2("playerData", player)
+    local data = playerData:GetTable(databaseTable)
+    return data["Smorgs"]
+end
+
+
 function giveMoney(player, money)
     local playerData = ds2("playerData", player)
 
@@ -44,6 +55,8 @@ function giveMoney(player, money)
     local data = playerData:GetTable(databaseTable)
 
     data["Smorgs"] += money
+
+    playerData:Set(data)
     player:SetAttribute("Smorgs", data["Smorgs"])
 
     -- Leaderboard (We might not need this)
@@ -54,10 +67,34 @@ function giveExp(player, expAmount)
     local playerData = ds2("playerData", player)
     local data = playerData:GetTable(databaseTable)
     data["Exp"] += expAmount
+    playerData:Set(data)
     player:SetAttribute("Exp", data["Exp"])
-
 end
+
+function giveSword(player, sword)
+    
+    if DEBUG then 
+        print("so watcha buying :3")
+    end
+    local cost = sword:GetAttribute("Cost")
+    if DEBUG then
+        print(cost)
+        print(getMoney(player))
+    end
+    if getMoney(player) >= cost then
+        giveMoney(player, -cost)
+        local playerData = ds2("playerData", player)
+        local data = playerData:GetTable(databaseTable)
+        table.insert(data["Swords"],sword.Name)
+        playerData:Set(data)
+        return true
+    else 
+        return false
+    end
+end
+
 
 Players.PlayerAdded:Connect(initDatabase)
 sendMoneyE.Event:Connect(giveMoney)
 sendExpE.Event:Connect(giveExp)
+canBuyF.OnInvoke = giveSword
