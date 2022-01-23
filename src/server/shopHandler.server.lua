@@ -64,7 +64,6 @@ function getSwordFromFrame(player, frame)
             end
             swordClone.Parent = backpack
             swordDamageE:Fire(swordClone)
-            
         end
     end
 end

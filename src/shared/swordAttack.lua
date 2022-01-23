@@ -11,6 +11,11 @@ function swordMechanics.attack(player, sword)
     attack.AnimationId = sword:GetAttribute("AnimationID")
     local attackAnimation = animator:LoadAnimation(attack)
     attackAnimation:Play()
+    player:SetAttribute("Attacking", true)
+    while attackAnimation.IsPlaying do
+        task.wait()
+    end
+    player:SetAttribute("Attacking", false)
 end
 
 return swordMechanics

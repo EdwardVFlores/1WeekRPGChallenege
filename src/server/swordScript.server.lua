@@ -20,25 +20,27 @@ end
 function damageOnSwords(sword)
     print("actually put damage 1")
     if sword == nil then return end
+    if sword.Parent == nil then return end
+    
     local hitbox = sword:FindFirstChild("HitBox")
     if not hitbox then 
         warn("No hitbox for some goddamn reason :[")
         return
 	end
     print("actually put damage 2")
-    local cooldown = false
+    
+    
     hitbox.Touched:Connect(function(part)
-        print("actually put damage 3")
-        if cooldown then return end
-        cooldown = true
-        
-        if part.Parent == nil then
-            return
-		end
-		if CollectionService:HasTag(part.Parent, "Mob") then
-            print("actually put damage 4")
-            local mob = part.Parent
-            if not mob then return end
+        print("Hitbox")
+        local character = sword.Parent
+        if not character then return end
+        local player = Players:GetPlayerFromCharacter(character)
+        if not player then return end
+        if part.Parent == nil then return end
+        local mob = part.Parent
+        if not mob then return end
+        if CollectionService:HasTag(mob, "Mob") and not mob:GetAttribute(character.Name.."DamageCooldown") then
+            mob:SetAttribute(character.Name.."DamageCooldown", true)
             local humanoid = mob:FindFirstChildWhichIsA("Humanoid")
             if not humanoid then if debug then warn("Ayo no fucking humanoid fix yo sht") end return end
             if humanoid.Health > 0 then
@@ -46,18 +48,18 @@ function damageOnSwords(sword)
                 if debug then
                     print(sword:GetAttribute("Damage"))
                 end
+                if humanoid.Health < 1 then
+                    
+                    sendMoneyE:Fire(player,mob:GetAttribute("smorgDrop"))
+                    sendExpE:Fire(player,mob:GetAttribute("expDrop"))
+                end
             end
-            if humanoid.Health < 1 then
-                local character = sword.Parent
-                if not character then return end
-                local player = Players:GetPlayerFromCharacter(character)
-                if not player then return end
-                sendMoneyE:Fire(player,mob:GetAttribute("smorgDrop"))
-                sendExpE:Fire(player,mob:GetAttribute("expDrop"))
+            while player:GetAttribute("Attacking") do
+                print("Attacking")
+                task.wait()
             end
+            mob:SetAttribute(character.Name.."DamageCooldown", false)
         end
-        task.wait(1)
-        cooldown = false
     end)
 end
 

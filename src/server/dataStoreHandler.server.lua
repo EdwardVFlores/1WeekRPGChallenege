@@ -11,16 +11,14 @@ local canBuyF = Functions:WaitForChild("canBuyF")
 local ds2 = require(Services:WaitForChild("DataStore2"))
 
 ds2.Combine("DATA", "playerData")
-
 local databaseTable = {
     Smorgs = 0,
     Exp = 0,
-    Swords = {"Noob Sword"},
+    Swords = {},
 }
 
 function initDatabase(player)
     local playerData = ds2("playerData", player)
-
     local leaderstats = Instance.new("Folder")
     leaderstats.Name = "leaderstats"
 
@@ -82,11 +80,15 @@ function giveSword(player, sword)
         print(getMoney(player))
     end
     if getMoney(player) >= cost then
-        giveMoney(player, -cost)
         local playerData = ds2("playerData", player)
         local data = playerData:GetTable(databaseTable)
-        table.insert(data["Swords"],sword.Name)
-        playerData:Set(data)
+        if table.find(data["Swords"], sword.Name) then 
+            warn("Already have this sword")
+            return false 
+        end
+        table.insert(data["Swords"],sword.Name) 
+        playerData:Set(data) --IF CHANGING DATA SET IT BEFORE CHANGING IT AGAIN
+        giveMoney(player, -cost)
         return true
     else 
         return false

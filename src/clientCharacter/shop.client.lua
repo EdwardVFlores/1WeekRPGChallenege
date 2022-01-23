@@ -5,14 +5,18 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local shopGui = playerGui:WaitForChild("ShopGui")
-local openShopBtn = shopGui:WaitForChild("openShop"):WaitForChild("openBtn")
 local shopFrame = shopGui:WaitForChild("Shop")
+local openShopBtn = shopGui:WaitForChild("openShop"):WaitForChild("openBtn")
+local closeShopBtn = shopFrame:WaitForChild("closeBtn")
 local shopScroll = shopFrame:WaitForChild("itemBarFront"):WaitForChild("shopScroll")
 local buyBtn = shopFrame:WaitForChild("buyBtn")
 local buyItemRE = ShopRemotes:WaitForChild("buyItemRE")
 
 local selectedItem = nil
 openShopBtn.Activated:Connect(function()
+	shopFrame.Visible = not shopFrame.Visible
+end)
+closeShopBtn.Activated:Connect(function()
 	shopFrame.Visible = not shopFrame.Visible
 end)
 
