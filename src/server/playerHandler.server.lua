@@ -1,13 +1,16 @@
 local Players = game:GetService("Players")
+local ServerStorage = game:GetService("ServerStorage")
+local serverEvents = ServerStorage:WaitForChild("events")
+local sendInventoryE = serverEvents:WaitForChild("sendInventoryE")
 
-
-function defaultValuesPlayer(player)
+function defaultValuesPlayer(player, fromCharacter)
     player:SetAttribute("Attacking", false)
 end
 
 function defaultValuesCharacter(character)
     local player = Players:GetPlayerFromCharacter(character)
-    defaultValuesPlayer(player)
+    sendInventoryE:Fire(player, true)
+    defaultValuesPlayer(player, true)
 end
 
 Players.PlayerAdded:Connect(function(player)

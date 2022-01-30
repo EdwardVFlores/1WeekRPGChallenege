@@ -12,6 +12,7 @@ local ds2 = require(Services:WaitForChild("DataStore2"))
 
 ds2.Combine("DATA", "playerData")
 local databaseTable = {
+    Level = 1,
     Smorgs = 0,
     Exp = 0,
     Swords = {},
@@ -30,6 +31,7 @@ function initDatabase(player)
     smorgs.Parent = leaderstats
     player:SetAttribute("Smorgs", data["Smorgs"])
     player:SetAttribute("Exp", data["Exp"])
+    player:SetAttribute("Level", data["Level"])
     leaderstats.Parent = player
 end
 

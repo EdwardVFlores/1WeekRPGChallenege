@@ -8,24 +8,23 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local ShopRemotes = Remotes:WaitForChild("Shops")
 local Players = game:GetService("Players")
 local shopStorage = ReplicatedStorage:WaitForChild("Shop")
-local buyItemRE = ShopRemotes:WaitForChild("buyItemRE")
+local buyItemRF = ShopRemotes:WaitForChild("buyItemRF")
 local canBuyF = Functions:WaitForChild("canBuyF")
-local swordDamageE = Events:WaitForChild("connectSwordDamage")
 local swords = ReplicatedStorage:WaitForChild("Swords"):GetChildren()
+local sendInventoryE = Events:WaitForChild("sendInventoryE")
 
 
 function putSwordsInShop(player)
     print("Fired swords in shpo")
     local playerGui = player:WaitForChild("PlayerGui")
     local shopGui = playerGui:WaitForChild("ShopGui")
-    local shopItemScroll = shopGui:WaitForChild("Shop"):WaitForChild("itemBarFront"):WaitForChild("shopScroll")
+    local shopItemScroll = shopGui:WaitForChild("Shop"):WaitForChild("ShopScroll")
     for index, sword in ipairs(swords) do
         print("adding sword to shop")
         local swordsFrame = shopStorage:WaitForChild("Swords"):Clone()
-        local itemBtn = swordsFrame:FindFirstChild("itemBtn")
-        local itemImg = itemBtn:FindFirstChild("itemFrame"):FindFirstChild("image")
-        local itemNameLabel = itemBtn:FindFirstChild("SwordNameLabel")
-        local descriptionLabel = itemBtn:FindFirstChild("Description")
+        local itemImg = swordsFrame:FindFirstChild("itemImg")
+        local itemNameLabel = swordsFrame:FindFirstChild("itemName")
+        local descriptionLabel = swordsFrame:FindFirstChild("itemDescription")
 		swordsFrame:SetAttribute("SwordName", sword.Name)
         for attribute, value in pairs(sword:GetAttributes()) do
             swordsFrame:SetAttribute(attribute, value)
@@ -33,7 +32,7 @@ function putSwordsInShop(player)
 		itemImg.Image = sword.TextureId
         swordsFrame.Name = sword:GetAttribute("Cost") .. sword.Name
         itemNameLabel.Text = sword.Name
-        descriptionLabel.Text = sword:GetAttribute("Damage") .. " Damage"
+        descriptionLabel.Text = "Cost: " .. sword:GetAttribute("Cost") .. "\n" ..sword:GetAttribute("Damage") .. " Damage"
         swordsFrame.Parent = shopItemScroll
     end
 end
@@ -45,27 +44,14 @@ function getSwordFromFrame(player, frame)
             findSword = sword
         end
     end
-    print(findSword)
+    print("Reached server smiley")
     if findSword then
         if canBuyF:Invoke(player, findSword) then
-            print("bought")
-            -- TODO: put sword in inventory system
-            local backpack = player.Backpack
-            if not backpack then 
-                    if DEBUG then 
-                        warn("No backpack on player wtf?")
-                    end
-                return
-            end
-            local swordClone = findSword:Clone()
-            -- Connect damage to this clone
-            if DEBUG then
-                print("we connected the damage :)")
-            end
-            swordClone.Parent = backpack
-            swordDamageE:Fire(swordClone)
+            sendInventoryE:Fire(player)
+            return true;
         end
     end
+    return false;
 end
 
 local function reconnectShop(player)
@@ -79,4 +65,4 @@ local function reconnectShop(player)
 end
 
 Players.PlayerAdded:Connect(reconnectShop)
-buyItemRE.OnServerEvent:Connect(getSwordFromFrame)
+buyItemRF.OnServerInvoke = getSwordFromFrame

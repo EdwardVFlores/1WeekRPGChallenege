@@ -1,5 +1,8 @@
 local swordMechanics = {}
 
+local animationId = "http://www.roblox.com/asset/?id=8389538800"
+
+
 function swordMechanics.attack(player, sword)
     local character = player.Character
     if not character then return end
@@ -8,7 +11,8 @@ function swordMechanics.attack(player, sword)
     local animator = humanoid:FindFirstChild("Animator")
     if not animator then return end
     local attack = Instance.new("Animation")
-    attack.AnimationId = sword:GetAttribute("AnimationID")
+    attack.AnimationId = animationId
+
     local attackAnimation = animator:LoadAnimation(attack)
     attackAnimation:Play()
     player:SetAttribute("Attacking", true)
