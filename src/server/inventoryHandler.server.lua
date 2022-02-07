@@ -1,9 +1,12 @@
 local Players = game:GetService("Players")
 local ServerStorage = game:GetService("ServerStorage")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local inventoryStorage = ReplicatedStorage:WaitForChild("Inventory")
+local setUpInventoryRE = inventoryStorage:WaitForChild("setUpInventory")
 local swordsFolder = ReplicatedStorage:WaitForChild("Swords"):GetChildren()
 local serverEvents = ServerStorage:WaitForChild("events")
 local sendInventoryE = serverEvents:WaitForChild("sendInventoryE")
+local equipMyItemRE = inventoryStorage:WaitForChild("equipMyItem")
 local ServerScriptService = game:GetService("ServerScriptService")
 local Server = ServerScriptService:WaitForChild("Server")
 local Services = Server:WaitForChild("services")
@@ -37,29 +40,35 @@ function sendInventory(player, putInBackpack)
         if not foundSword then return end
         local clonedSword = foundSword:Clone()
         clonedSword.Parent = inventory
+        swordDamageE:Fire(clonedSword)
     end
-    
-    inventory.Name = "NewInventory"
-    inventory.Parent = player
-    task.wait(.5)
     inventory.Name = "Inventory"
-    --TODO MAKE INVENTORY GUI TO PUT IN BACKPACK
-    local backpack = player.Backpack
-    backpack:ClearAllChildren()
-    print("Put inventory in backpack")
-    if backpack then
-        
-        for _, sword in ipairs(inventory:GetChildren()) do
-            if player.Character:FindFirstChild(sword.Name) and player.Character[sword.Name]:IsA("Tool") then
-                print("equipped already")
-            else
-                local swordClone = sword:Clone()
-                swordClone.Parent = backpack
-                swordDamageE:Fire(swordClone)
+    inventory.Parent = player
+
+    for i, tool in pairs(inventory:GetChildren()) do
+        setUpInventoryRE:FireClient(player,tool)
+    end
+end
+
+function equipMyItem(player, tool, wield)
+    local playerInventory = player:FindFirstChild("Inventory")
+    local character = player.Character
+    if not character then return end
+    if not wield and playerInventory then
+        for i, v in ipairs(character:GetChildren()) do
+            if v == tool then
+                print("Put in inventory")
+                v.Parent = playerInventory
+            end
+        end
+    elseif wield and playerInventory then
+        for i, v in ipairs(playerInventory:GetChildren()) do
+            if v == tool then
+                v.Parent = character
             end
         end
     end
-   
 end
 
 sendInventoryE.Event:Connect(sendInventory)
+equipMyItemRE.OnServerEvent:Connect(equipMyItem)

@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local ShopRemotes = Remotes:WaitForChild("Shops")
 local Players = game:GetService("Players")
@@ -22,7 +23,7 @@ closeShopBtn.Activated:Connect(function()
 end)
 
 local function checkInventory(item)
-    local inventory = player:FindFirstChild("NewInventory") or player:FindFirstChild("Inventory")
+    local inventory = player:WaitForChild("Inventory")
     if inventory then
         local inv = inventory:GetChildren()
         for _, tool in ipairs(inv) do

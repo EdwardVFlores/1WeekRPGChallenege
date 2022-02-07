@@ -17,7 +17,7 @@ function activated(sword)
 	end
 end
 
-local backPack = player.Backpack
-if backPack then 
-	backPack.ChildAdded:Connect(activated)
-end
+local character = player.Character or player.Character:Wait()
+
+character.ChildAdded:Connect(activated)
+
